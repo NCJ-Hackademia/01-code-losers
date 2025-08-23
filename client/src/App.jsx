@@ -13,7 +13,7 @@ import Footer from './components/Footer'
 import ForgotPassword from './pages/forgot'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import "antd/dist/reset.css"; 
 
 const App = () => {
   return (
