@@ -37,7 +37,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-
+connectDb();
 
 app.listen(process.env.PORT,()=>
 {

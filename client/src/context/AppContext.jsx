@@ -12,11 +12,11 @@ const AppContextProvider=(props)=>{
     const [userData,setUserData]=useState(false)
    
 
-    
+     
 
     const loadUserProfileData=async()=>{
         try{
-            const {data}=await axios.get(backendUrl+'/api/user/get-profile',{headers:{token}})
+            const {data}=await axios.get(backendUrl+'/profile/get-user',{headers:{token}})
             if(data.success){
                 setUserData(data.userData)
             }
