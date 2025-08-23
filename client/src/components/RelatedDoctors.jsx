@@ -1,10 +1,33 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { AppContext } from '../context/AppContext'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import axios from 'axios'
 
 const RelatedDoctors = ({docId,speciality}) => {
- const {doctors}=useContext(AppContext)
+  const [doctors, setDoctors] = useState([])
  const navigate=useNavigate();
+
+
+ const backendUrl=import.meta.env.VITE_BACKEND_URL
+
+ useEffect(() => {
+  getDoctorsData()
+}, [])
+
+const getDoctorsData = async () => {
+  try {
+    const { data } = await axios.get(backendUrl + '/api/doctor/list')
+    if (data.success) {
+      setDoctors(data.doctors)
+    
+    } else {
+      toast.error(data.message)
+    }
+  } catch (error) {
+    toast.error(error.message)
+  }
+}
 
  const [relDoc,setRelDoc]=useState([]);
 

@@ -16,44 +16,45 @@ const Login = () => {
   const [name,setName]=useState('')
   const [newAccount,setNewAccount]=useState(false) 
   const [otp,setOtp]=useState('')
+  const [phoneNumber,setPhoneNumber] =useState("");
 
   const onSubmitHandler=async(event)=>{
     event.preventDefault();
     try {
       if (state === 'Sign Up') {
         if (!newAccount) {
-          const { data } = await axios.post(`${backendUrl}/api/user/register`, { name, email, password });
-          if (data.success) {
+          const result = await axios.post(`${backendUrl}/auth/send-otp`, { email});
+
             setNewAccount(true);
             toast.success('OTP sent to your email. Please verify.');
-          } else {
-            toast.error(data.message);
-          }
         } else {
-          const { data } = await axios.post(`${backendUrl}/api/user/verify-otp`, { email, otp });
-          console.log(data)
-          if (data.success) {
+          const response = await axios.post(`${backendUrl}/auth/register`, { email, otp,password,name,phoneNumber });
+          console.log(response)
+          if (response) {
             toast.success('Account created successfully. Please login.');
             setNewAccount(false);
             setState('Login');
             setName('');
             setEmail('');
             setPassword('');
+            setPhoneNumber("");
             setOtp('');
           } else {
             toast.error(data.message);
           }
         }
       } else {
-        const { data } = await axios.post(`${backendUrl}/api/user/login`, { email, password });
-        if (data.success) {
-          localStorage.setItem('token', data.token);
-          setToken(data.token);
+        const { data } = await axios.post(`${backendUrl}/auth/login`, { email, password });
+        if (data) {
+          console.log(data)
+          localStorage.setItem('token', data);
+          setToken(data);
         } else {
           toast.error(data.message);
         }
       }
     } catch (error) {
+      console.log(error)
       toast.error(error.response?.data?.message || error.message);
     }
   }
@@ -71,6 +72,10 @@ const Login = () => {
         {state==="Sign Up" && <div className='w-full'>
           <p>Full Name</p>
           <input className="border border-zinc-300 rounded w-full p-2 mt-1" type="text" onChange={(e)=>{setName(e.target.value)}} value={name} required/>
+        </div>}
+         {state==="Sign Up" && <div className='w-full'>
+          <p>Phone number</p>
+          <input className="border border-zinc-300 rounded w-full p-2 mt-1" type="text" onChange={(e)=>{setPhoneNumber(e.target.value)}} value={phoneNumber} required/>
         </div>}
         
         <div className='w-full'>

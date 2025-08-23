@@ -3,8 +3,8 @@ import mongoose from "mongoose";
 const UserScheme = new mongoose.Schema({
   email: { type: String,required:true,unique:true},
   password: { type: String, required: true },
-  name: { type: String, required: true }, 
-  phoneNumber: { type: Number, required: true, unique: true },
+  name: { type: String, required: true },
+  phoneNumber: { type: String, required: true, unique: true },
   role: { type: String, enum: ["doctor", "hospital","user"],default:"user" },
   isActive: { type: Boolean, default: true },
   img: {
