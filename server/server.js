@@ -11,6 +11,7 @@ import AuthRouter from "./Routes/AuthRouter.js";
 import cors from 'cors'
 import ProfileRoutes from "./Routes/ProfileRoutes.js";
 import queueRoutes from "./Routes/queueRoutes.js";
+import CallGeminiRouter from "./Routes/CallGemini/CallGemini.js";
 
 const app=express();
 connectDb()
@@ -29,6 +30,7 @@ app.use('/admin',AdminRoutes);
 app.use('/hospital',HospitalRoutes);
 app.use('/profile',ProfileRoutes);
 app.use("/queue",queueRoutes);
+app.use("/call-gemini",CallGeminiRouter)
 
 app.use((err, req, res, next) => {
   console.error(err.stack); 
