@@ -8,7 +8,7 @@ import { authenticate } from "../middlewares/authenticate.js";
 const queueRoutes=express.Router();
 
 queueRoutes.post('/add-in-queue',authenticate,AddInQueue);
-queueRoutes.get('/get-queue',GetAppointments);
+queueRoutes.get('/get-queue',authenticate,GetAppointments);
 queueRoutes.post('/add-wt-queue',MoveToWaitingQueue)
 queueRoutes.post('/reject',RejectAppointment)
 queueRoutes.post('/add-medical-record',authenticate,TreatedByDoctor);

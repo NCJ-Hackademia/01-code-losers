@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import userModel from "../models/userModel.js";
+import doctorModel from "../models/doctorsmodel.js";
 
 
 export const authenticate = async (req, res, next) => {
@@ -14,8 +15,13 @@ export const authenticate = async (req, res, next) => {
     if (!user || !user.isActive) {
       return res.status(401).json({ message: "Unauthorized user" });
     }
+    
 
     req.user = user; 
+
+    if(user.role=="doctor"){
+      req.user.doctor = await doctorModel.findOne({user_id:user._id});
+    }
     next();
   } catch (error) { 
     res.status(401).json({ message: "Invalid or expired token" });
