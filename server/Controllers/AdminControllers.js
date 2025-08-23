@@ -2,6 +2,7 @@
 import userModel from "../models/userModel.js";
 import { uploadFiles } from "../utils/uploadFile.js";
 import hospitalModel from '../models/hospitalModel.js';
+import bcrypt from "bcrypt"
 
 export const AddHospital = async (req, res, next) => {
   try {
@@ -11,10 +12,12 @@ export const AddHospital = async (req, res, next) => {
       return next(new Error("All the details are needed"));
     }
 
+
+    const hashedPassword = await bcrypt.hash(password, 10);
     
     const user = await userModel.create({
       email,
-      password,
+      password:hashedPassword,
       name,
       phoneNumber,
       role,
