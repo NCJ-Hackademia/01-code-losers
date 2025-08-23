@@ -1,5 +1,5 @@
 import express from 'express'
-import { AddDoctor, UpdateDoctor } from '../Controllers/collegeControllers.js';
+import { AddDoctor, UpdateDoctor } from '../Controllers/HospitalControllers.js';
 
 const HospitalRoutes=express.Router();
 HospitalRoutes.post('/add-doctor',AddDoctor);
