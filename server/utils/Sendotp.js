@@ -1,8 +1,7 @@
-import transporter from "../../config/nodemailer.js";
+import transporter from "../config/nodemailer.js";
 
-export const SendOtp = async (req, res, next) => {
+export const SendOtp = async (email) => {
   try {
-    const { email } = req.body;
 
     if (!email) {
       return res
