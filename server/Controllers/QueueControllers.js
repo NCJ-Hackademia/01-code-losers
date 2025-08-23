@@ -1,12 +1,12 @@
-import queueModel from "../models/queuemodel";
-import queUserModel from "../models/queuserModel";
-import { parseDateString, addMinutes, getQueueStartTime } from "../utils/parsedate";
+import queueModel from "../models/queuemodel.js";
+import queUserModel from "../models/queuserModel.js";
+import { parseDateString, addMinutes, getQueueStartTime } from "../utils/parsedate.js";
 
-import doctorModel from "../models/doctorModel.js";
+import doctorModel from "../models/doctorsmodel.js";
 
 export const AddInQueue = async (req, res, next) => {
   try {
-    
+
     const { date, doctor_id } = req.body;
     
     const doctor = await doctorModel.findById(doctor_id);
