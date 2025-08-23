@@ -50,22 +50,24 @@ const AiRecommend = () => {
     setIsModalOpen(false);
   };
 
-  const callGemini = async () => {
-    if (!tags.length) {
-      return toast.warning("Please enter symptoms");
-    }
-
+  const callGeminiOrFetchDoctors = async () => {
     setLoading(true);
     try {
-      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/call-gemini/run`, {
-        symptoms: tags,
-      });
+      let specialist = null;
 
-      const [disease, specialist] = response.data;
-      setRecommendation({ disease, specialist });
+      // If symptoms are selected, call Gemini first
+      if (tags.length > 0) {
+        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/call-gemini/run`, {
+          symptoms: tags,
+        });
 
-      console.log(specialist);
-      fetchDoctors(specialist);
+        const [disease, predictedSpecialist] = response.data;
+        setRecommendation({ disease, specialist: predictedSpecialist });
+        specialist = predictedSpecialist;
+      }
+
+      // Fetch doctors based on specialist / location / pincode
+      await fetchDoctors(specialist);
     } catch (error) {
       toast.error(error?.response?.data?.message || error.message);
     } finally {
@@ -85,7 +87,13 @@ const AiRecommend = () => {
       if (pincodeMatch) {
         query.pincode = Number(pincodeMatch[0]);
       } else if (location) {
-        query.city = location;
+        query.city = location; // optional, backend must support city filtering
+      }
+
+      // Only call backend if we have at least one filter
+      if (Object.keys(query).length === 0) {
+        setDoctors([]);
+        return;
       }
 
       const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/hospital/get-doctors`, {
@@ -135,24 +143,24 @@ const AiRecommend = () => {
       </Modal>
 
       <div className="mt-4">
-        <Button type="primary" onClick={callGemini} loading={loading}>
-          Get Recommendation
+        <Button type="primary" onClick={callGeminiOrFetchDoctors} loading={loading}>
+          Get Recommendation / Find Doctors
         </Button>
       </div>
 
-      {recommendation && (
+      {/* {recommendation && (
         <div className="mt-6 text-lg">
           <p><strong>Disease:</strong> {recommendation.disease}</p>
           <p><strong>Specialist:</strong> {recommendation.specialist}</p>
         </div>
-      )}
+      )} */}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
         {doctors.map((item, index) => (
           <div
             onClick={() => navigate(`/appointments/${item._id}`)}
             key={index}
-            className="border border-blue-200 rounded-xl overflow-hidden cursor-pointer hover:translate-y-[-10px] transition-all duration-500"
+            className="border border-blue-200 rounded-xl overflow-hidden cursor-pointer hover:translate-y-[-10px] transition-all duration-500 justify-center items-center"
           >
             <img className="bg-blue-50 w-full h-48 object-cover" src={item.user.img} alt={item.user.name} />
             <div className="p-4">
