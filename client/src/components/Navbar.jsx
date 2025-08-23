@@ -5,6 +5,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { AppContext } from '../context/AppContext';
 
 const Navbar = () => {
+
     const navigate=useNavigate();
     const [showMenu,setShowMenu]=useState(false);
     const {token,setToken,userData}=useContext(AppContext)
@@ -12,6 +13,7 @@ const Navbar = () => {
       setToken(false)
       localStorage.removeItem('token')
     }
+    console.log(token)
   return (
     <div className='flex items-center justify-between py-4 text-sm mb-4 border-b border-b-gray-400'>
       <h1 onClick={()=>{navigate('/')}} className="cursor-pointer text-primary font-semibold font-roboto text-2xl">My Hospital</h1> 

@@ -26,14 +26,14 @@ const Login = () => {
                     toast.error(data.message)
                 }
             }else{
-                /*const {data}=await axios.post(backendUrl+'/api/doctor/login',{email,password})
-                if(data.success){*/
-                    localStorage.setItem('dToken','token')
-                    setDToken('token')
+                const {data}=await axios.post(backendUrl+'/api/doctor/login',{email,password})
+                if(data.success){
+                    localStorage.setItem('dToken',data.token)
+                    setDToken(data.token)
                     
-                /*}else{
+                }else{
                     toast.error(data.message)
-                }*/
+                }
             }
         }catch(error){
             toast.error(error.message)
