@@ -6,8 +6,9 @@ import userModel from "../models/userModel.js";
 
 export const GetUserById = async (req, res, next) => {
   try {
-    const { id, role } = req.body;
-
+   
+    const id = req.user._id;
+    const role = req.user.role;
     const user = await userModel.findById(id).lean();
     if (!user) {
       return next(new Error("No user found"));
