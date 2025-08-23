@@ -16,9 +16,10 @@ const AppContextProvider=(props)=>{
 
     const loadUserProfileData=async()=>{
         try{
-            const {data}=await axios.get(backendUrl+'/profile/get-user',{headers:{token}})
+            const {data}=await axios.get(backendUrl+'/profile/get-user',{headers:{
+                Authorization:"Bearer "+token}})
             if(data.success){
-                setUserData(data.userData)
+                setUserData(data.user)
             }
             else{
                 toast.error(data.message)

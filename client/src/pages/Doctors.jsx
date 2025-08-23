@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AntdInput from '../ui/Input/input'
-import { MapPin } from 'lucide-react'
+import { MapPin, Star } from 'lucide-react'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 import { Modal, AutoComplete, Input } from 'antd'
 
 const specialities = [
-  { id: "SELECT CATEGORY", name: "Select Category" },
+  { id: "ALL", name: "All Categories" },
   { id: "GENERAL PHYSICIAN", name: "General Physician" },
   { id: "DENTIST", name: "Dentist" },
   { id: "CARDIOLOGIST", name: "Cardiologist" },
@@ -36,10 +36,10 @@ const Doctors = () => {
 
   const getDoctorsData = async () => {
     try {
-      const { data } = await axios.get(backendUrl + '/api/doctor/list')
+      const { data } = await axios.get(backendUrl + '/hospital/get-doctors')
       if (data.success) {
-        setDoctors(data.doctors)
-        setFilteredDoctors(data.doctors)
+        setDoctors(data.data)
+        setFilteredDoctors(data.data)
       } else {
         toast.error(data.message)
       }
@@ -52,12 +52,12 @@ const Doctors = () => {
     let filtered = doctors
     if (searchTerm) {
       filtered = filtered.filter(doc =>
-        doc.name.toLowerCase().includes(searchTerm.toLowerCase())
+        doc.user.name.toLowerCase().includes(searchTerm.toLowerCase())
       )
     }
     if (selectedCategory !== "ALL") {
       filtered = filtered.filter(doc =>
-        doc.speciality.toUpperCase() === selectedCategory
+        doc.specilization.toUpperCase() === selectedCategory
       )
     }
     setFilteredDoctors(filtered)
@@ -128,14 +128,21 @@ const Doctors = () => {
               key={index} 
               className='border border-blue-200 rounded-xl overflow-hidden cursor-pointer hover:translate-y-[-10px] transition-all duration-500'
             >
-              <img className='bg-blue-50' src={item.image} alt="" />
+              <img className='bg-blue-50 w-full h-48 object-cover' src={item.user.img} alt={item.user.name} />
               <div className='p-4'>
-                <div className={`flex items-center gap-2 text-sm text-center ${item.available ? 'text-green-500' : 'text-gray-500'}`}>
-                  <p className={`w-2 h-2 ${item.available ? 'bg-green-500' : 'bg-gray-500'} rounded-full`}></p>
-                  <p>{item.available ? 'Available' : "Not Available"}</p>
+                <div className={`flex items-center gap-2 text-sm text-center ${item.user.isActive ? 'text-green-500' : 'text-gray-500'}`}>
+                  <p className={`w-2 h-2 ${item.user.isActive ? 'bg-green-500' : 'bg-gray-500'} rounded-full`}></p>
+                  <p>{item.isActive ? 'Available' : "Not Available"}</p>
                 </div>
-                <p className='text-gray-900 text-lg font-medium'>{item.name}</p>
-                <p className='text-gray-600 text-sm'>{item.speciality}</p>
+                <p className='text-gray-900 text-lg font-medium'>{item.user.name}</p>
+                <p className='text-gray-600 text-sm'>{item.specilization}</p>
+                
+                <div className="flex items-center justify-between mt-2 text-sm text-gray-700">
+                  <span className="flex items-center gap-1">
+                    <Star className="w-4 h-4 text-yellow-500" /> {item.rating || "N/A"}
+                  </span>
+                  <span>{item.experience} yrs exp</span>
+                </div>
               </div>
             </div>
           ))}
