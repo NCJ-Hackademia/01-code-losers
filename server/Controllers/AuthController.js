@@ -1,24 +1,23 @@
 import Otp from "../models/Otp.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import userModel from "../models/UsersModel.js";
+import userModel from "../models/userModel.js";
 import { SendOtp } from "../utils/sendotp.js";
 
 const AuthLogin = async (req, res, next) => {
   try {
-    const { phoneNumber, password } = req.body;
+    const { email, password } = req.body;
 
-    if (!phoneNumber || !password) {
+    if (!email || !password) {
       return res.status(400).json("parametres are missing");
     }
 
-    const user = await userModel.findOne({ phoneNumber });
+    const user = await userModel.findOne({ email });
 
     if (!user) {
       next(new Error("User Not Found"));
     } else {
-      console.log(password);
-      console.log(user);
+      
       const isMatch = await bcrypt.compare(password, user.password);
 
       if (isMatch) {
@@ -45,22 +44,27 @@ const AuthRegister = async (req, res, next) => {
     const { password, name,email, phoneNumber, otp } = req.body;
 
     if (!name || !phoneNumber || !password || !otp || !email) {
-      return res.status(400).json("parameters are missing");
+      return next(new Error("parameters are missing"));
     }
 
+
     const otpRecord = await Otp.findOne({ email });
+    console.log(otpRecord.otp)
+    console.log(otp)
     if (!otpRecord) {
-      return res.status(400).json({ message: "Invalid OTP" });
+      return next(new Error("invalid otp"));
     } else {
+      console.log(otp)
+      console.log(otpRecord)
       const isOtpValid = await bcrypt.compare(otp, otpRecord.otp);
       if (!isOtpValid) {
         next(new Error("invalid OTP"));
       } else {
-        await Otp.deleteOne({ phoneNumber });
+        await Otp.deleteOne({ email });
 
-        const user = await userModel.findOne({ phoneNumber });
+        const user = await userModel.findOne({ email });
         if (user) {
-          return res.status(400).json("user already found");
+          return next(new Error("user already exist"));
         }
 
         const hashpassword = await bcrypt.hash(password, 10);
@@ -77,12 +81,18 @@ const AuthRegister = async (req, res, next) => {
     next(err);
   }
 };
+
 const sendRegisterotp = async (req, res, next) => {
   try {
-    const { phoneNumber } = req.body;
+    const { email } = req.body;
 
-    if (!phoneNumber) {
-      return res.status(400).json({ message: "Phone number missing" });
+    if (!email) {
+      return res.status(400).json({ message: "email is  missing" });
+    }
+
+    const user= await userModel.findOne({email})
+    if(user){
+      return next(new Error("user already found"))
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -90,13 +100,12 @@ const sendRegisterotp = async (req, res, next) => {
     const hashedOtp = await bcrypt.hash(otp, 10);
 
     await Otp.findOneAndUpdate(
-      { phoneNumber },
+      { email },
       { $set: { otp: hashedOtp, createdAt: Date.now() } },
       { upsert: true, new: true }
     );
 
-    const message = `Your OTP is ${otp}. It will expire in 10 minutes. Do not share with anyone.`;
-    const sent = await sendSms(message, "+91" + phoneNumber);
+    const sent = await SendOtp(email,otp);
 
     if (sent) {
       return res.status(200).json({ message: "OTP sent successfully" });
@@ -112,12 +121,12 @@ const sendRegisterotp = async (req, res, next) => {
 
 const forgetPasswordOtp = async (req, res, next) => {
   try {
-    const { phoneNumber } = req.body;
+    const { email } = req.body;
 
-    if (!phoneNumber) {
+    if (!email) {
       return res.status(400).json("no phone number provided");
     }
-    const user = await userModel.findOne({ phoneNumber });
+    const user = await userModel.findOne({ email });
     if (!user) {
       return res.status(400).json("user not found");
     }
@@ -130,13 +139,12 @@ const forgetPasswordOtp = async (req, res, next) => {
     const hashedOtp = await bcrypt.hash(otp, 10);
 
     await Otp.findOneAndUpdate(
-      { phoneNumber },
+      { email },
       { $set: { otp: hashedOtp, createdAt: Date.now() } },
       { upsert: true, new: true }
     );
 
-    const message = `Your OTP is ${otp}. It will expire in 10 minutes. Do not share with anyone.`;
-    const sent = await sendSms(message, "+91" + phoneNumber);
+    const sent = await SendOtp(email,otp);
 
     if (sent) {
       return res.status(200).json({ message: "OTP sent successfully" });
@@ -150,13 +158,13 @@ const forgetPasswordOtp = async (req, res, next) => {
 
 const passChange = async (req, res, next) => {
   try {
-    const { phoneNumber, password, otp } = req.body;
+    const { email, password, otp } = req.body;
 
-    if (!phoneNumber || !password || !otp) {
+    if (!email || !password || !otp) {
       return res.status(400).json("parameters are missing");
     }
 
-    const otpRecord = await Otp.findOne({ phoneNumber });
+    const otpRecord = await Otp.findOne({ email });
 
     if (!otpRecord) {
       return res.status(400).json({ message: "Invalid OTP" });
@@ -165,13 +173,13 @@ const passChange = async (req, res, next) => {
       if (!isOtpValid) {
         next(new Error("invalid OTP"));
       } else {
-        await Otp.deleteOne({ phoneNumber });
+        await Otp.deleteOne({ email });
 
         const hashpassword = await bcrypt.hash(password, 10);
         const result = await userModel.updateOne(
-          { phoneNumber }, // filter
-          { $set: { password: hashpassword } }, // update
-          { new: true } // option (but note: 'new' has no effect on updateOne)
+          { email }, 
+          { $set: { password: hashpassword } }, 
+          { new: true } 
         );
         res.status(200).json("password updated successfully");
       }

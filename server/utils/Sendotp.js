@@ -1,27 +1,23 @@
 import transporter from "../config/nodemailer.js";
 
-export const SendOtp = async (email) => {
+export const SendOtp = async (email, otp) => {
   try {
-
-    if (!email) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Email is required" });
+    if (!email || !otp) {
+      return false;
     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000);
-
     const mailOptions = {
-      from: process.env.SENDER_EMAIL,
+      from: "pharmacyrgukt@gmail.com",
       to: email,
-      subject: "Your OTP Code",
-      text: `Your OTP code is ${otp}. It will expire in 5 minutes.`,
+      subject: "Your OTP",
+      text: `Your OTP code is ${otp}. It will expire in 10 minutes.`,
     };
-
-    await transporter.sendMail(mailOptions);
-
-    return otp;
+    console.log(email);
+    const result = await transporter.sendMail(mailOptions);
+    console.log(result);
+    return true;
   } catch (error) {
-    next(error);
+    console.log(error);
+    return false;
   }
 };

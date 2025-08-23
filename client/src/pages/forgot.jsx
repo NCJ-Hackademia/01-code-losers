@@ -18,20 +18,20 @@ const ForgotPassword = () => {
     e.preventDefault();
     try {
       if (step === 1) {
-        const { data } = await axios.post(`${backendUrl}/api/user/send-otp`, { email });
-        if (data.success) {
+        const { data } = await axios.post(`${backendUrl}/auth/forget`, { email });
+        if (data) {
           toast.success('OTP sent to your email');
           setStep(2);
         } else {
           toast.error(data.message);
         }
       } else if (step === 2) {
-        const { data } = await axios.post(`${backendUrl}/api/user/reset-password`, {
+        const { data } = await axios.post(`${backendUrl}/auth/passchange`, {
           email,
           otp,
-          newPassword
+          password:newPassword
         });
-        if (data.success) {
+        if (data) {
           toast.success('Password reset successfully');
           navigate('/login');
         } else {
