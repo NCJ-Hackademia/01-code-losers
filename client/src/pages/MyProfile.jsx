@@ -5,6 +5,7 @@ import axios from 'axios';
 
 const MyProfile = () => {
   const { userData, setUserData, token, backendUrl, loadUserProfileData } = useContext(AppContext)
+  console.log(userData)
   const [isEdit, setIsEdit] = useState(false);
 
   const updateUserProfileData = async () => {
