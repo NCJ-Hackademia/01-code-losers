@@ -27,6 +27,7 @@ app.get('/',(req,res)=>
 app.use('/auth',AuthRouter);
 app.use('/admin',AdminRoutes);
 app.use('/hospital',HospitalRoutes);
+app.use('/profile',ProfileRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack); 
@@ -36,9 +37,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// app.use('/auth',AuthRouter);
-app.use('/admin',AdminRoutes);
-app.use('/hospital',HospitalRoutes);
+
 
 app.listen(process.env.PORT,()=>
 {
