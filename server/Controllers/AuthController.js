@@ -6,6 +6,7 @@ import { SendOtp } from "../utils/Sendotp.js";
 
 const AuthLogin = async (req, res, next) => {
   try {
+    console.log("hii")
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -13,12 +14,14 @@ const AuthLogin = async (req, res, next) => {
     }
 
     const user = await userModel.findOne({ email });
+    console.log(user)
 
     if (!user) {
       next(new Error("User Not Found"));
     } else {
       
       const isMatch = await bcrypt.compare(password, user.password);
+      console.log(isMatch)
 
       if (isMatch) {
         const accessToken = jwt.sign(
@@ -28,7 +31,7 @@ const AuthLogin = async (req, res, next) => {
             expiresIn: "7d",
           }
         );
-
+        console.log(accessToken)
         return res.status(200).json(accessToken);
       } else {
         return res.status(401).json({ message: "Password incorrect" });
