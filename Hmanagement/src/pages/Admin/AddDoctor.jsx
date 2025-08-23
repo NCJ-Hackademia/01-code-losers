@@ -31,7 +31,7 @@ const AddDoctor = () => {
       }
 
       const formData = new FormData();
-      formData.append("image", docImg);
+      formData.append("img", docImg);
 
       // user fields
       formData.append("name", name);
@@ -42,7 +42,7 @@ const AddDoctor = () => {
       formData.append("isActive", isActive);
 
       // doctor fields
-      formData.append("hospital_id", hospital_id);
+
       formData.append("specilization", specilization);
       formData.append("pincode", pincode);
       formData.append("rating", rating);
@@ -53,10 +53,12 @@ const AddDoctor = () => {
       const { data } = await axios.post(
         backendUrl + "/hospital/add-doctor",
         formData,
-        { headers: { aToken } }
+      
+        {headers:{
+            Authorization:"Bearer "+aToken}}
       );
 
-      if (data.success) {
+      if (data.success) {  
         toast.success(data.message);
 
         // reset fields
