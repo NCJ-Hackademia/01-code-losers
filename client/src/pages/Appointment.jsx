@@ -1,58 +1,62 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { data, useNavigate, useParams } from 'react-router-dom'
 import { AppContext } from '../context/AppContext'
-import { assets } from '../assets/assets';
-import RelatedDoctors from '../components/RelatedDoctors';
-import { toast } from 'react-toastify';
-import axios from 'axios';
+import { assets } from '../assets/assets'
+import RelatedDoctors from '../components/RelatedDoctors'
+import { toast } from 'react-toastify'
+import axios from 'axios'
 
 const Appointment = () => {
-  const { docId } = useParams();
-  const { currencySymbol, backendUrl, token } = useContext(AppContext);
-  const [doctors, setDoctors] = useState([]);
-  const [docInfo, setDocInfo] = useState(null);
+  const { docId } = useParams() // ✅ doctor id from URL
+  const { currencySymbol, backendUrl, token } = useContext(AppContext)
 
-  const [dates, setDates] = useState([]);  // available dates
-  const [selectedDate, setSelectedDate] = useState(null); // chosen date
+  const [docInfo, setDocInfo] = useState(null)
+  const [dates, setDates] = useState([])  
+  const [selectedDate, setSelectedDate] = useState(null)
 
   const daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   useEffect(() => {
-    getDoctorsData();
-    generateDates();
-  }, [])
+    getDoctorInfo()
+    generateDates()
+  }, [docId]) 
 
-  const getDoctorsData = async () => {
+
+  const getDoctorInfo = async () => {
+
+    console.log(docId);
     try {
-      const { data } = await axios.get(backendUrl + 'hospital/get-doctors')
+      const { data } = await axios.post(`${backendUrl}/hospital/get-by-Id`,{
+        id:docId
+      })
+      console.log(data)
+      
       if (data.success) {
-        setDoctors(data.doctors)
+        setDocInfo(data.user)
       } else {
         toast.error(data.message)
       }
     } catch (error) {
       toast.error(error.message)
+      console.log(error)
     }
   }
 
-  const fetchDocInfo = async () => {
-    const docInfo = doctors.find(doc => doc._id === docId);
-    setDocInfo(docInfo);
-  }
-
+ 
   const generateDates = () => {
-    let today = new Date();
-    let next7Days = [];
+    let today = new Date()
+    let next7Days = []
 
     for (let i = 0; i < 7; i++) {
-      let currentDate = new Date(today);
-      currentDate.setDate(today.getDate() + i);
-      next7Days.push(currentDate);
+      let currentDate = new Date(today)
+      currentDate.setDate(today.getDate() + i)
+      next7Days.push(currentDate)
     }
-    setDates(next7Days);
+    setDates(next7Days)
   }
 
+ 
   const bookAppointment = async () => {
     if (!token) {
       toast.warn('Login to book appointment')
@@ -60,8 +64,8 @@ const Appointment = () => {
     }
 
     if (!selectedDate) {
-      toast.warn('Please select a date before booking');
-      return;
+      toast.warn('Please select a date before booking')
+      return
     }
 
     try {
@@ -72,48 +76,55 @@ const Appointment = () => {
       const slotDate = `${day}_${month}_${year}`
 
       const { data } = await axios.post(
-        backendUrl + '/api/user/book-appointment',
-        { docId, slotDate },  // only sending date now
+        `${backendUrl}/api/user/book-appointment`,
+        { docId, slotDate },
         { headers: { token } }
       )
-
+      
       if (data.success) {
         toast.success(data.message)
-        getDoctorsData()
         navigate('/my-appointments')
       } else {
         toast.error(data.message)
       }
     } catch (error) {
-      console.log(error)
       toast.error(error.message)
     }
   }
 
-  useEffect(() => {
-    fetchDocInfo();
-  }, [docId, doctors]);
-
   return docInfo && (
     <div>
+ 
       <div className='flex flex-col sm:flex-row gap-4'>
         <div>
-          <img src={docInfo.image} alt="" className='bg-primary w-full sm:max-w-72 rounded-lg' />
+          <img src={docInfo.user_id?.img} alt="" className='bg-primary w-full sm:max-w-72 rounded-lg' />
         </div>
         <div className='flex-1 border border-gray-400 rounded-lg p-8 py-7 bg-white mx-2 sm:mx-0 mt-[-80px] sm:mt-0'>
-          <p className='flex items-center gap-2 text-2xl font-medium text-gray-900'>{docInfo.name}
-            <img src={assets.verified_icon} className='w-5' />
+          <p className='flex items-center gap-2 text-2xl font-medium text-gray-900'>
+            {docInfo.user_id?.name}
+            <img src={assets.verified_icon} className='w-5' alt="verified"/>
           </p>
           <div className='flex items-center gap-2 text-sm mt-1 text-gray-600'>
-            <p>{docInfo.degree} - {docInfo.speciality}</p>
-            <button className='py-0.5 px-2 border text-xs rounded-full'>{docInfo.experience}</button>
+            <p>{docInfo.degree} - {docInfo?.specilization }</p>
+            <button className='py-0.5 px-2 border text-xs rounded-full'>{docInfo?.experience}</button>
           </div>
           <div>
-            <p className='flex items-center gap-1 text-sm font-medium text-gray-900 mt-3'>About <img src={assets.info_icon} alt="" /></p>
-            <p className='text-small text-gray-500 max-w-[700px] mt-1'>{docInfo.about}</p>
+            <p className='flex items-center gap-1 text-sm font-medium text-gray-900 mt-3'>
+              About <img src={assets.info_icon} alt="" />
+            </p>
+            <p className='text-sm text-gray-500 max-w-[700px] mt-1'>{docInfo?.description}</p>
           </div>
-          <p className='text-gray-500 font-medium mt-4'>Appointment fee: <span className='text-gray-600'>{currencySymbol}{docInfo.fees}</span></p>
+          <div className="flex items-center gap-1">
+  {Array.from({ length: 5 }, (_, i) => (
+    <span key={i}>
+      {i < docInfo?.rating ? '⭐' : '☆'}
+    </span>
+  ))}
+</div>
+
         </div>
+
+        
       </div>
 
       {/* Date Selection */}
@@ -124,7 +135,11 @@ const Appointment = () => {
             <div
               key={index}
               onClick={() => setSelectedDate(date)}
-              className={`text-center py-6 min-w-16 rounded-full cursor-pointer ${selectedDate?.getDate() === date.getDate() ? 'bg-primary text-white' : 'border border-gray-200'}`}
+              className={`text-center py-6 min-w-16 rounded-full cursor-pointer ${
+                selectedDate?.getDate() === date.getDate()
+                  ? 'bg-primary text-white'
+                  : 'border border-gray-200'
+              }`}
             >
               <p>{daysOfWeek[date.getDay()]}</p>
               <p>{date.getDate()}</p>
@@ -139,8 +154,6 @@ const Appointment = () => {
           Book an appointment
         </button>
       </div>
-
-      
     </div>
   )
 }
