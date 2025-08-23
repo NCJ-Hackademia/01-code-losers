@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const DoctorScheme = new mongoose.Schema({
   hospital_id: { type: String,ref:"hospital"},
-  user_id: { type: String, ref:"Users" },
+  user_id: { type: mongoose.Schema.Types.ObjectId, ref: "Users" }, 
   specilization: { type: String, required: true },
   pincode: { type: Number, required: true },
   rating:{type:Number,required:true,default:3.5},

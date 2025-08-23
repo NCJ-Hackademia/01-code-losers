@@ -14,9 +14,11 @@ import cors from 'cors'
 import ProfileRoutes from "./Routes/ProfileRoutes.js";
 
 const app=express();
+connectDb()
 app.use(express.json());  
 app.use(cors());
 app.use(upload.array('img'));
+
 app.get('/',(req,res)=>
 {
     res.send(`server is working good`);
@@ -24,8 +26,9 @@ app.get('/',(req,res)=>
 
 
 app.use('/auth',AuthRouter);
-
-
+app.use('/admin',AdminRoutes);
+app.use('/hospital',HospitalRoutes);
+app.use('/profile',ProfileRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack); 
@@ -35,10 +38,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// app.use('/auth',AuthRouter);
-app.use('/admin',AdminRoutes);
-app.use('/hospital',HospitalRoutes);
-app.use('/profile',ProfileRoutes)
+connectDb();
 
 app.listen(process.env.PORT,()=>
 {

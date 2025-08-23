@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const queueScheme = new mongoose.Schema({
-  doctor_id:{type:String,ref:"doctors"},
+  doctor_id:{type: mongoose.Schema.Types.ObjectId,ref:"doctors"},
   date:{type:Date,required:true},
   count: { type: Number, required: true,default:0 },
   wt_time:{type:Number,required:true,default:0},
