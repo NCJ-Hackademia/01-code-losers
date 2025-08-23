@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const hospitalScheme = new mongoose.Schema({
-  user_id: { type: String,ref:"Users"},
+  user_id: { type: mongoose.Schema.Types.ObjectId, ref: "Users" }, 
   address: { type: String, required: true },
   pincode: { type: String, required: true },
 });

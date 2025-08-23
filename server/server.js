@@ -16,6 +16,7 @@ const app=express();
 app.use(express.json());  
 app.use(cors());
 app.use(upload.array('img'));
+
 app.get('/',(req,res)=>
 {
     res.send(`server is working good`);
@@ -23,8 +24,8 @@ app.get('/',(req,res)=>
 
 
 app.use('/auth',AuthRouter);
-
-
+app.use('/admin',AdminRoutes);
+app.use('/hospital',HospitalRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack); 
@@ -34,9 +35,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// app.use('/auth',AuthRouter);
-app.use('/admin',AdminRoutes);
-app.use('/hospital',HospitalRoutes);
 
 app.listen(process.env.PORT,()=>
 {
