@@ -106,10 +106,10 @@ export const UpdateDoctor = async (req, res, next) => {
       description,
       phoneNumber,
       role,
-      hospital_id,
+      
       specilization,
       pincode,
-      rating,
+      
       experience,
       usersPerDay,
     } = req.body;
@@ -131,19 +131,14 @@ export const UpdateDoctor = async (req, res, next) => {
     const updates = {};
     if (specilization) updates.specilization = specilization.toLowerCase();
     if (description) updates.description = description;
-    if (hospital_id) updates.hospital_id = hospital_id;
+    
     if (pincode) {
       const pincodeNumber = parseInt(pincode, 10);
       if (isNaN(pincodeNumber))
         return next(new Error("Pincode must be a valid number"));
       updates.pincode = pincodeNumber;
     }
-    if (rating) {
-      const ratingNumber = parseFloat(rating);
-      if (isNaN(ratingNumber))
-        return next(new Error("Rating must be a valid number"));
-      updates.rating = ratingNumber;
-    }
+    
     if (experience) {
       const experienceNumber = parseInt(experience, 10);
       if (isNaN(experienceNumber))
