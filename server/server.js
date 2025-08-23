@@ -3,11 +3,19 @@ import dotenv from 'dotenv';
 import upload from "./config/multer.js";
 dotenv.config();
 import connectDb from "./config/mongodb.js"
-import AuthRouter from "./Routes/AuthRouter.js";
+import AdminRoutes from "./Routes/AdminRoutes.js";
+import HospitalRoutes from "./Routes/HospitalRoutes.js";
+// import AuthRouter from "./Routes/AuthRouter.js";
 
+connectDb();
+
+import AuthRouter from "./Routes/AuthRouter.js";
+import cors from 'cors'
 connectDb();
 const app=express();
 app.use(express.json());  
+app.use(cors());
+app.use(upload.array('img'));
 app.get('/',(req,res)=>
 {
     res.send(`server is working good`);
@@ -26,7 +34,9 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.use('/auth',AuthRouter);
+// app.use('/auth',AuthRouter);
+app.use('/admin',AdminRoutes);
+app.use('/hospital',HospitalRoutes);
 
 app.listen(process.env.PORT,()=>
 {

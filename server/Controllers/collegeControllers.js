@@ -64,14 +64,13 @@ const usersPerDayNumber = parseInt(usersPerDay, 10);
       isActive,
     });
 
-    // Upload doctor image if provided
     if (req.file?.path) {
       const imageData = await uploadFiles(req.file.path, "image", "doctors");
       user.img = imageData.secure_url;
       await user.save();
     }
 
-    // Create doctor record
+    
     const doctor = await doctorModel.create({
       hospital_id,
       user_id: user._id,
