@@ -1,11 +1,31 @@
-import  { useContext } from 'react'
+import  { useState,useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AppContext } from '../context/AppContext';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 
 const TopDoctors = () => {
     const navigate=useNavigate();
-    const {doctors}=useContext(AppContext)
+     const [doctors, setDoctors] = useState([])
+     useEffect(() => {
+      getDoctorsData()
+    }, [])
+
+    const backendUrl = import.meta.env.VITE_BACKEND_URL
+  
+    const getDoctorsData = async () => {
+      try {
+        const { data } = await axios.get(backendUrl + '/api/doctor/list')
+        if (data.success) {
+          setDoctors(data.doctors)
+          
+        } else {
+          toast.error(data.message)
+        }
+      } catch (error) {
+        toast.error(error.message)
+      }
+    }
   return (
     <div className='flex flex-col items-center gap-4 my-16 text-gray-900 md:mx-10'>
       <h1 className='text-3xl font-medium'>Top Doctors to Book</h1>
