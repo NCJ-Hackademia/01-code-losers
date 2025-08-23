@@ -1,5 +1,6 @@
 import transporter from "../config/nodemailer.js";
 
+
 export const SendOtp = async (email, otp) => {
   try {
     if (!email || !otp) {

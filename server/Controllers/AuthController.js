@@ -2,7 +2,7 @@ import Otp from "../models/Otp.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import userModel from "../models/userModel.js";
-import { SendOtp } from "../utils/sendotp.js";
+import { SendOtp } from "../utils/Sendotp.js";
 
 const AuthLogin = async (req, res, next) => {
   try {
