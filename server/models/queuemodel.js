@@ -6,9 +6,9 @@ const queueScheme = new mongoose.Schema({
   count: { type: Number, required: true,default:0 },
   wt_time:{type:Number,required:true,default:0},
   end_time:{type:Date,required:true},
-  wt_count:{type:Number,required:true},
+  wt_count:{type:Number,required:true,default:0},
 
-});
+}); 
 
 const queueModel = mongoose.model("queue", queueScheme);
 

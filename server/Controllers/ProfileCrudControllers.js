@@ -1,9 +1,6 @@
 import doctorModel from "../models/doctorsmodel.js";
 import hospitalModel from "../models/hospitalModel.js";
 import userModel from "../models/userModel.js";
-
-
-
 export const GetUserById = async (req, res, next) => {
   try {
    
@@ -34,3 +31,33 @@ export const GetUserById = async (req, res, next) => {
     next(error);
   }
 };
+
+export const UpdateById = async (req, res, next) => {
+  try {
+    const id = req.user.id;  
+    const role = req.user.role;
+
+    const { name, phoneNumber } = req.body;
+
+    
+    const user = await userModel.findByIdAndUpdate(
+      id,
+      { name, phoneNumber },
+      { new: true, runValidators: true }
+    )
+
+    if (!user) {
+      return next(new Error("User not found"));
+    }
+
+    delete user.password;
+    return res.status(200).json({
+      success: true,
+      message: "Updated successfully",
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
