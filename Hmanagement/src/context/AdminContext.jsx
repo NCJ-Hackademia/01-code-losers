@@ -15,10 +15,11 @@ const AdminContextProvider=(props)=>{
 
     const getAllDoctors=async()=>{
         try{
-            const {data}=await axios.post(backendUrl+'/api/admin/all-doctors',{},{headers:{aToken}})
+            const {data}=await axios.get(backendUrl+'/hospital/get-doctors',{},{headers:{aToken}})
+            console.log(data)
             if(data.success){
-                setDoctors(data.doctors)
-                console.log(data.doctors)
+                setDoctors(data.data)
+                console.log(data.data)
             }
             else{
                 toast.error(data.message)
