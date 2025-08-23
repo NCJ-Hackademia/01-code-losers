@@ -11,6 +11,7 @@ import Appointment from './pages/Appointment'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import ForgotPassword from './pages/forgot'
+import AiRecommend from './components/AiRecommend'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import "antd/dist/reset.css"; 
@@ -31,6 +32,7 @@ const App = () => {
         <Route path="/my-appointments" element={<MyAppointments/>}/>
         <Route path="/appointments/:docId" element={<Appointment/>}/>
         <Route path="/forgot-password" element={<ForgotPassword/>}/>
+        <Route path="/ai-recommend" element={<AiRecommend/>}/>
       </Routes>
       <Footer/>
     </div>
