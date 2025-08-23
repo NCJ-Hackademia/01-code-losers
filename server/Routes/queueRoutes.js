@@ -15,4 +15,5 @@ queueRoutes.post('/add-medical-record',authenticate,TreatedByDoctor);
 queueRoutes.post('/accept-wt-patient',authenticate,AcceptWaitingPatient);
 
 
+
 export default queueRoutes;

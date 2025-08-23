@@ -25,7 +25,7 @@ const Appointment = () => {
 
   const getDoctorsData = async () => {
     try {
-      const { data } = await axios.get(backendUrl + 'hospital/get-doctors')
+      const { data } = await axios.get(backendUrl + '/hospital/get-doctors')
       if (data.success) {
         setDoctors(data.doctors)
       } else {
