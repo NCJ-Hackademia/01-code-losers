@@ -10,6 +10,7 @@ import "./config/cloudinary.js"
 import AuthRouter from "./Routes/AuthRouter.js";
 import cors from 'cors'
 import ProfileRoutes from "./Routes/ProfileRoutes.js";
+import queueRoutes from "./Routes/queueRoutes.js";
 
 const app=express();
 connectDb()
@@ -27,6 +28,7 @@ app.use('/auth',AuthRouter);
 app.use('/admin',AdminRoutes);
 app.use('/hospital',HospitalRoutes);
 app.use('/profile',ProfileRoutes);
+app.use("/queue",queueRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack); 

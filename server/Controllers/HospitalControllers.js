@@ -6,7 +6,7 @@ import bcrypt from 'bcrypt'
 export const AddDoctor = async (req, res, next) => {
   try {
     const {
-      email,
+      email, 
       password,
       name,
       description,
