@@ -16,22 +16,31 @@ const DoctorContextProvider=(props)=>{
 
     const [profileData,setProfileData]=useState(false)
 
-    const getAppointments=async()=>{
-        try{
-            const {data}=await axios.get(backendUrl+'/queue/get-queue',{headers:{
-                Authorization:"Bearer "+dToken}})
-                console.log(data);
-            if(data.success){
-                setAppointments(data.appointments)
+    const getAppointments = async (date) => {
+        try {
+          const { data } = await axios.get(
+            backendUrl + '/queue/get-queue',
+            {
+              params: { date }, 
+              headers: {
+                Authorization: "Bearer " + dToken,
+              },
             }
-            else{
-                toast.error(data.message)
-            }
+          );
+      
+          console.log(data);
+      
+          if (data.success) {
+            setAppointments(data.appointments);
+          } else {
+            toast.error(data.message);
+          }
+        } catch (error) {
+          toast.error(error.message);
+          console.log(error)
         }
-        catch(error){
-            toast.error(error.message)
-        }
-    }
+      };
+      
 
     const completeAppointment=async(appointmentId)=>{
         try{
