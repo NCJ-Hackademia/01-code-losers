@@ -12,9 +12,7 @@ queueRoutes.post('/add-wt-queue',addWtQueue)
 queueRoutes.post('/reject',rejectAppointment)
 queueRoutes.post('/accept',acceptAppointment)
 queueRoutes.post('/add-medical-record',TreatedByDoctor);
-queueRoutes.get('/get-queue',GetAppointments);
-queueRoutes.post('/add-wt-queue',MoveToWaitingQueue)
-queueRoutes.post('/reject',RejectAppointment)
+
 // queueRoutes.post('/accept',acceptAppointment)
 
 export default queueRoutes;
