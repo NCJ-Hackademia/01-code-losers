@@ -6,51 +6,46 @@ import doctorModel from "../models/doctorModel.js";
 
 export const AddInQueue = async (req, res, next) => {
   try {
+    
     const { date, doctor_id } = req.body;
-
-    // Validate doctor
+    
     const doctor = await doctorModel.findById(doctor_id);
     if (!doctor) {
       return res.status(404).json({ message: "Doctor not found" });
     }
 
-    // Consultation time in minutes (default 5 if not set per doctor)
     const consultationTime = doctor.consultationTime || 5;
 
-    // Parse date ("dd-mm-yyyy") → local Date
     const parsedDate = parseDateString(date);
 
-    // Find existing queue for doctor & date
     let queue = await queueModel.findOne({ doctor_id, date: parsedDate });
 
     let estimatedTime;
 
     if (!queue) {
-      // No queue yet → create new one starting 9:00 AM
       const startTime = getQueueStartTime(date);
 
       queue = await queueModel.create({
         doctor_id,
         date: parsedDate,
         count: 1,
-        end_time: addMinutes(startTime, consultationTime), // first ends at 9:05
+        end_time: addMinutes(startTime, consultationTime), 
       });
 
-      estimatedTime = startTime; // first user starts at 9:00
+      estimatedTime = startTime; 
     } else {
-      // Queue exists → next slot is current end_time
+      
       estimatedTime = queue.end_time;
 
-      // Update queue for next user
       queue.count += 1;
       queue.end_time = addMinutes(queue.end_time, consultationTime);
       await queue.save();
     }
 
-    // Create queue-user record
+
     const queUser = await queUserModel.create({
       queue_id: queue._id,
-      user_id: req.user._id, // assuming auth middleware sets this
+      user_id: req.user._id, 
       estimated_time: estimatedTime,
       type: "original",
     });
@@ -73,7 +68,7 @@ export const MoveToWaitingQueue = async (req, res, next) => {
   try {
     const { queUserId } = req.body;
 
-    // Find queue-user
+
     const queUser = await queUserModel.findById(queUserId).populate("queue_id");
     if (!queUser) {
       return res.status(404).json({ message: "Queue user not found" });
@@ -118,25 +113,22 @@ export const GetAppointments = async (req, res, next) => {
       return res.status(400).json({ message: "Date and doctor_id are required" });
     }
 
-    // Parse date string "dd-mm-yyyy" → Date object (midnight local)
     const parsedDate = parseDateString(date);
 
-    // Find queue for that doctor + date
     const queue = await queueModel.findOne({ doctor_id, date: parsedDate });
     if (!queue) {
       return res.status(404).json({ message: "No queue found for this doctor on the given date" });
     }
 
-    // Filter queue users
     let query = { queue_id: queue._id };
     if (type) {
-      query.type = type; // filter by "original" or "waiting"
+      query.type = type; 
     }
 
     const appointments = await queUserModel
       .find(query)
-      .populate("user_id", "name email") // populate basic user details
-      .sort({ estimated_time: 1 }); // earliest first
+      .populate("user_id", "name email") 
+      .sort({ estimated_time: 1 }); 
 
     res.status(200).json({
       message: "Appointments fetched successfully",
@@ -159,13 +151,11 @@ export const RejectAppointment = async (req, res, next) => {
       return res.status(400).json({ message: "queUserId is required" });
     }
 
-    // Find the queue-user
     const queUser = await queUserModel.findById(queUserId);
     if (!queUser) {
       return res.status(404).json({ message: "Queue user not found" });
     }
 
-    // Update type → reject
     queUser.type = "reject";
     await queUser.save();
 
