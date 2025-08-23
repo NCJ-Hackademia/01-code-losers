@@ -32,19 +32,32 @@ export const GetUserById = async (req, res, next) => {
   }
 };
 
-export const UpdateById=async(req,res,next)=>
-{
-    try {
-        const id=req.user_id;
-        const role=req.user.role;
-        const {name,phoneNumber}=req.body;
-        const user=await userModel.findByIdAndUpdate({_id:id},{name,phoneNumber});
+export const UpdateById = async (req, res, next) => {
+  try {
+    const id = req.user.id;  
+    const role = req.user.role;
 
+    const { name, phoneNumber } = req.body;
 
+    
+    const user = await userModel.findByIdAndUpdate(
+      id,
+      { name, phoneNumber },
+      { new: true, runValidators: true }
+    )
 
-        return res.status(200).json({success:true,message:"Updated successfully",user})
-        
-    } catch (error) {
-        next(error);
+    if (!user) {
+      return next(new Error("User not found"));
     }
-}
+
+    delete user.password;
+    return res.status(200).json({
+      success: true,
+      message: "Updated successfully",
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+

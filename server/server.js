@@ -7,8 +7,6 @@ import AdminRoutes from "./Routes/AdminRoutes.js";
 import HospitalRoutes from "./Routes/HospitalRoutes.js";
 // import AuthRouter from "./Routes/AuthRouter.js";
 import "./config/cloudinary.js"
-connectDb();
-
 import AuthRouter from "./Routes/AuthRouter.js";
 import cors from 'cors'
 import ProfileRoutes from "./Routes/ProfileRoutes.js";

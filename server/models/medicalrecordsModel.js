@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const medicalRecordSchema = new mongoose.Schema({
-  user_id: { type: mongoose.Schema.Types.ObjectId, ref: "Users" }, // FIXED
+  user_id: { type: mongoose.Schema.Types.ObjectId, ref: "Users" }, 
   doctor_id: { type: mongoose.Schema.Types.ObjectId, ref:"doctors" },
   description: { type: String, required: true },
    medicine:{type:[String],required:true},
