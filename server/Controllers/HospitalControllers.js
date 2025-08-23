@@ -4,7 +4,9 @@ import { uploadFiles } from "../utils/uploadFile.js";
 import bcrypt from 'bcrypt'
 
 export const AddDoctor = async (req, res, next) => {
+  console.log("hii")
   try {
+    const id=req.user._id;
     const {
       email, 
       password,
@@ -13,7 +15,7 @@ export const AddDoctor = async (req, res, next) => {
       phoneNumber,
       role,
       isActive,
-      hospital_id,
+      
       specilization,
       pincode,
       rating,
@@ -71,7 +73,7 @@ export const AddDoctor = async (req, res, next) => {
     }
 
     const doctor = await doctorModel.create({
-      hospital_id,
+      hospital_id:id,
       user_id: user._id,
       specilization:specilization.toLowerCase(),
       pincode: pincodeNumber,
