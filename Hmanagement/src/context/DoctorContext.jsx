@@ -18,7 +18,9 @@ const DoctorContextProvider=(props)=>{
 
     const getAppointments=async()=>{
         try{
-            const {data}=await axios.get(backendUrl+'/api/doctor/appointments',{headers:{dToken}})
+            const {data}=await axios.get(backendUrl+'/queue/get-queue',{headers:{
+                Authorization:"Bearer "+dToken}})
+                console.log(data);
             if(data.success){
                 setAppointments(data.appointments)
             }
