@@ -21,8 +21,8 @@ export const AddHospital = async (req, res, next) => {
       isActive,
     });
 
-    if (req.file?.path) {
-      const imageData = await uploadFiles(req.file.path, "image", "hospitals");
+    if (req.files && req.files[0]?.path) {
+      const imageData = await uploadFiles(req.files[0].path, "image", "hospitals");
       user.img = imageData.secure_url;
       await user.save();
     }
