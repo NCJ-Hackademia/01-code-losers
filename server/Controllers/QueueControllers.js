@@ -109,8 +109,8 @@ export const MoveToWaitingQueue = async (req, res, next) => {
 
 export const GetAppointments = async (req, res, next) => {
   try {
-    const { date, type, doctor_id } = req.query;
-
+    const { date, type } = req.query;
+    const doctor_id = req.user.doctor._id;
     if (!date || !doctor_id) {
       return res
         .status(400)

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { DoctorContext } from '../../context/DoctorContext'
 import { AppContext } from '../../context/AppContext'
 
@@ -7,11 +7,13 @@ const DoctorAppointments = () => {
     useContext(DoctorContext)
   const { slotDateFormat } = useContext(AppContext)
 
+  const [date, setDate] = useState('')
+
   useEffect(() => {
     if (dToken) {
-      getAppointments()
+      getAppointments(date) 
     }
-  }, [dToken])
+  }, [dToken, date])
 
   const handleStatusChange = (appointmentId, value) => {
     if (value === 'accept') {
@@ -23,15 +25,39 @@ const DoctorAppointments = () => {
     }
   }
 
+  
+  const formatDate = (inputDate) => {
+    if (!inputDate) return ''
+    const d = new Date(inputDate)
+    const day = String(d.getDate()).padStart(2, '0')
+    const month = String(d.getMonth() + 1).padStart(2, '0')
+    const year = String(d.getFullYear()).slice(-2) 
+    return `${day}-${month}-${year}`
+  }
+
+  const handleDateChange = (e) => {
+    const formatted = formatDate(e.target.value)
+    setDate(formatted)
+  }
+
   return (
     <div className="w-full max-w-6xl m-5">
-      <div className='flex w-full justify-between items-center'>
-      <p className="mb-3 text-lg font-medium">All Appointments</p>
-      <select className="border rounded px-2 py-1 text-sm outline-none">
-        <option value="queue">queue</option>
-        <option value="waiting">waiting</option>
-      </select>
+      <div className="flex w-full justify-between items-center">
+        <p className="mb-3 text-lg font-medium">All Appointments</p>
+
+        <div>
+          <input
+            type="date"
+            className="m-4 border rounded px-2 py-1 text-sm outline-none"
+            onChange={handleDateChange}
+          />
+          <select className="border rounded px-2 py-1 text-sm outline-none">
+            <option value="queue">queue</option>
+            <option value="waiting">waiting</option>
+          </select>
+        </div>
       </div>
+
       <div className="bg-white border rounded text-sm max-h-[80vh] min-h-[50vh] overflow-y-scroll">
         <div className="max-sm:hidden grid grid-cols-[0.5fr_2fr_1fr_1fr] gap-1 py-3 px-6 border-b">
           <p>#</p>
