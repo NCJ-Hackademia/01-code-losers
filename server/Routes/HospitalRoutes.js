@@ -6,4 +6,4 @@ HospitalRoutes.post('/add-doctor',authenticate,AddDoctor);
 HospitalRoutes.put('/update-doctor',UpdateDoctor);
 HospitalRoutes.get('/get-doctors',getDoctors)
 
-export default HospitalRoutes;
+export default HospitalRoutes; 

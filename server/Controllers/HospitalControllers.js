@@ -16,6 +16,7 @@ export const AddDoctor = async (req, res, next) => {
       role,
       isActive,
       
+     
       specilization,
       pincode,
       rating,
@@ -30,7 +31,7 @@ export const AddDoctor = async (req, res, next) => {
       !phoneNumber ||
       !role ||
       isActive === undefined ||
-      !hospital_id ||
+      
       !specilization ||
       !pincode ||
       !rating ||
@@ -73,6 +74,7 @@ export const AddDoctor = async (req, res, next) => {
     }
 
     const doctor = await doctorModel.create({
+      hospital_id:id,
       hospital_id:id,
       user_id: user._id,
       specilization:specilization.toLowerCase(),
