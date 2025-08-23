@@ -1,7 +1,7 @@
 import React from 'react'
 import { assets } from '../assets/assets'
 import { useNavigate } from 'react-router-dom'
-import AiRecommend from './AiRecommend'
+import AiRecommend from './AiRecommend.jsx'
 
 const Banner = () => {
     const navigate=useNavigate();
