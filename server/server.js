@@ -11,7 +11,8 @@ import "./config/cloudinary.js"
 
 import AuthRouter from "./Routes/AuthRouter.js";
 import cors from 'cors'
-connectDb();
+import ProfileRoutes from "./Routes/ProfileRoutes.js";
+
 const app=express();
 app.use(express.json());  
 app.use(cors());
@@ -35,6 +36,9 @@ app.use((err, req, res, next) => {
   });
 });
 
+// app.use('/auth',AuthRouter);
+app.use('/admin',AdminRoutes);
+app.use('/hospital',HospitalRoutes);
 
 app.listen(process.env.PORT,()=>
 {
