@@ -12,4 +12,4 @@ const queueSchema = new mongoose.Schema({
 
 const queueModel = mongoose.model("queue", queueSchema);
 
-export default queueModel;
+export default queueModel; 

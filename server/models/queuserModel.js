@@ -10,4 +10,4 @@ const queUserSchema = new mongoose.Schema({
 
 const queUserModel = mongoose.model("queuser", queUserSchema);
 
-export default queUserModel;
+export default queUserModel; 
