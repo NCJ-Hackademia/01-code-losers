@@ -314,3 +314,36 @@ export const AcceptWaitingPatient = async (req, res, next) => {
   }
 };
 
+
+//to get patient appointments
+export const GetMyAppointments = async (req, res, next) => {
+  try {
+    
+    if (!req.user || !req.user._id) {
+      return res.status(400).json({ message: "User not authenticated" });
+    }
+
+    const userId = req.user._id;
+
+    const appointments = await queUserModel
+      .find({ user_id: userId })
+      .populate({
+        path: "queue_id",
+        populate: {
+          path: "doctor_id",
+          populate: { path: "user_id", select: "-password" }
+        }
+      })
+      .lean();
+
+    return res.status(200).json({
+      message: "Appointments fetched successfully",
+      count: appointments.length,
+      appointments,
+    });
+
+  } catch (error) {
+    console.error("Error fetching appointments:", error);
+    next(error);
+  }
+};
