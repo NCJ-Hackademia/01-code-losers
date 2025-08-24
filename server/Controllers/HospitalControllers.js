@@ -251,3 +251,29 @@ export const getQueuedetails = async (req, res, next) => {
     next(err);
   }
 };
+
+
+export const getDoctorById = async (req, res, next) => {
+  try {
+    const { id } = req.body; 
+
+    if (!id ) {
+      return res.status(400).json({ success: false, message: "Invalid doctor ID" });
+    }
+
+    const user = await doctorModel.findById(id).populate("user_id")
+    if (!user) {
+      return res.status(404).json({ success: false, message: "No doctor found" });
+    }
+
+    const doctor = await doctorModel.findOne({ user_id: id });
+
+    return res.status(200).json({
+      success: true,
+      user,   
+      doctor, 
+    });
+  } catch (error) {
+    next(error);
+  }
+};

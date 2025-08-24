@@ -111,6 +111,7 @@ export const GetAppointments = async (req, res, next) => {
   try {
     const { date, type } = req.query;
     const doctor_id = req.user.doctor._id;
+    console.log(date,doctor_id)
     if (!date || !doctor_id) {
       return res
         .status(400)
@@ -122,7 +123,7 @@ export const GetAppointments = async (req, res, next) => {
     const queue = await queueModel.findOne({ doctor_id, date: parsedDate });
     if (!queue) {
       return res
-        .status(404)
+        .status(200)
         .json({ message: "No queue found for this doctor on the given date" });
     }
 
@@ -133,7 +134,7 @@ export const GetAppointments = async (req, res, next) => {
 
     const appointments = await queUserModel
       .find(query)
-      .populate("user_id", "name email")
+      .populate("user_id","-password")
       .sort({ estimated_time: 1 });
 
     res.status(200).json({
