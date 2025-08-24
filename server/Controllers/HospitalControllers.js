@@ -253,7 +253,6 @@ export const getQueuedetails = async (req, res, next) => {
 };
 
 
-
 export const getDoctorById = async (req, res, next) => {
   try {
     const { id } = req.body; 
