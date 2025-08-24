@@ -163,6 +163,7 @@ const AiRecommend = () => {
                 <div
                   key={index}
                   className="border border-blue-200 rounded-xl overflow-hidden cursor-pointer hover:-translate-y-2 transition-all duration-500"
+                  onClick={() => navigate(`/appointments/${item._id}`)} 
                 >
                   <img
                     className="bg-blue-50 w-full h-48 object-cover"
