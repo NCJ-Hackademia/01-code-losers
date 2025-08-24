@@ -17,14 +17,15 @@ const RelatedDoctors = ({docId,speciality}) => {
 
 const getDoctorsData = async () => {
   try {
-    const { data } = await axios.get(backendUrl + '/api/doctor/list')
-    if (data.success) {
+    const { data } = await axios.get(backendUrl + '/hospital/get-doctors')
+    if (data) {
       setDoctors(data.doctors)
     
     } else {
       toast.error(data.message)
     }
   } catch (error) {
+    console.log(error)
     toast.error(error.message)
   }
 }

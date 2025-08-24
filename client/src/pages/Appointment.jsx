@@ -1,161 +1,171 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { data, useNavigate, useParams } from 'react-router-dom'
-import { AppContext } from '../context/AppContext'
-import { assets } from '../assets/assets'
-import RelatedDoctors from '../components/RelatedDoctors'
-import { toast } from 'react-toastify'
-import axios from 'axios'
+import React, { useContext, useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { AppContext } from '../context/AppContext';
+import { assets } from '../assets/assets';
+import { toast } from 'react-toastify';
+import axios from 'axios';
+import moment from 'moment';
+import { DatePicker, Button } from 'antd';
 
 const Appointment = () => {
-  const { docId } = useParams() // ✅ doctor id from URL
-  const { currencySymbol, backendUrl, token } = useContext(AppContext)
+  const { docId } = useParams(); // doctor ID from URL
+  const { backendUrl, token } = useContext(AppContext);
 
-  const [docInfo, setDocInfo] = useState(null)
-  const [dates, setDates] = useState([])  
-  const [selectedDate, setSelectedDate] = useState(null)
+  const [docInfo, setDocInfo] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [queueInfo, setQueueInfo] = useState(null);
 
-  const daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
-    getDoctorInfo()
-    generateDates()
-  }, [docId]) 
+    getDoctorInfo();
+  }, [docId]);
 
+  useEffect(() => {
+    if (selectedDate) getQueueDetails();
+  }, [selectedDate]);
 
   const getDoctorInfo = async () => {
-
-    console.log(docId);
     try {
-      const { data } = await axios.post(`${backendUrl}/hospital/get-by-Id`,{
-        id:docId
-      })
-      console.log(data)
-      
-      if (data.success) {
-        setDocInfo(data.user)
-      } else {
-        toast.error(data.message)
-      }
-    } catch (error) {
-      toast.error(error.message)
-      console.log(error)
+      const { data } = await axios.post(
+        `${backendUrl}/hospital/get-by-id`,
+        { id: docId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      console.log("Doctor info:", data);
+
+      if (data.success) setDocInfo(data.user);
+      else toast.error(data.message);
+    } catch (err) {
+      console.error(err);
+      toast.error(err.message);
     }
-  }
+  };
 
- 
-  const generateDates = () => {
-    let today = new Date()
-    let next7Days = []
+  const getQueueDetails = async () => {
+    try {
+      const dateStr = moment(selectedDate).format('DD-MM-YYYY');
+      const { data } = await axios.get(
+        `${backendUrl}/hospital/get-doctor-details`,
+        {
+          params: { date: dateStr, doctor_id: docId },
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
-    for (let i = 0; i < 7; i++) {
-      let currentDate = new Date(today)
-      currentDate.setDate(today.getDate() + i)
-      next7Days.push(currentDate)
+      console.log("Queue details:", data);
+      if (data) setQueueInfo(data);
+      else setQueueInfo(null);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch queue details");
     }
-    setDates(next7Days)
-  }
+  };
 
- 
   const bookAppointment = async () => {
     if (!token) {
-      toast.warn('Login to book appointment')
-      return navigate('/login')
+      toast.warn('Login to book appointment');
+      return navigate('/login');
     }
 
     if (!selectedDate) {
-      toast.warn('Please select a date before booking')
-      return
+      toast.warn('Please select a date');
+      return;
     }
 
     try {
-      let day = selectedDate.getDate()
-      let month = selectedDate.getMonth() + 1
-      let year = selectedDate.getFullYear()
-
-      const slotDate = `${day}_${month}_${year}`
+      const dateStr = moment(selectedDate).format('DD-MM-YYYY');
 
       const { data } = await axios.post(
-        `${backendUrl}/api/user/book-appointment`,
-        { docId, slotDate },
-        { headers: { token } }
-      )
-      
-      if (data.success) {
-        toast.success(data.message)
-        navigate('/my-appointments')
-      } else {
-        toast.error(data.message)
-      }
-    } catch (error) {
-      toast.error(error.message)
-    }
-  }
+        `${backendUrl}/queue/add-in-queue`,
+        { doctor_id: docId, date: dateStr },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-  return docInfo && (
-    <div>
- 
-      <div className='flex flex-col sm:flex-row gap-4'>
+      console.log("Book appointment response:", data);
+
+      if (data.queue) {
+        toast.success("Appointment booked successfully");
+        setQueueInfo(data.queue);
+      } else {
+        toast.error(data.message || "Failed to book appointment");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error(err.message);
+    }
+  };
+
+  return docInfo ? (
+    <div className="p-4">
+      {/* Doctor Details */}
+      <div className="flex flex-col sm:flex-row gap-4">
         <div>
-          <img src={docInfo.user_id?.img} alt="" className='bg-primary w-full sm:max-w-72 rounded-lg' />
+          <img
+            src={docInfo.user_id?.img}
+            alt={docInfo.user_id?.name}
+            className="bg-primary w-full sm:max-w-72 rounded-lg"
+          />
         </div>
-        <div className='flex-1 border border-gray-400 rounded-lg p-8 py-7 bg-white mx-2 sm:mx-0 mt-[-80px] sm:mt-0'>
-          <p className='flex items-center gap-2 text-2xl font-medium text-gray-900'>
+        <div className="flex-1 border border-gray-400 rounded-lg p-8 py-7 bg-white mx-2 sm:mx-0 mt-[-80px] sm:mt-0">
+          <p className="flex items-center gap-2 text-2xl font-medium text-gray-900">
             {docInfo.user_id?.name}
-            <img src={assets.verified_icon} className='w-5' alt="verified"/>
+            <img src={assets.verified_icon} className="w-5" alt="verified" />
           </p>
-          <div className='flex items-center gap-2 text-sm mt-1 text-gray-600'>
-            <p>{docInfo.degree} - {docInfo?.specilization }</p>
-            <button className='py-0.5 px-2 border text-xs rounded-full'>{docInfo?.experience}</button>
+          <div className="flex items-center gap-2 text-sm mt-1 text-gray-600">
+            <p>{docInfo.degree} - {docInfo?.specilization}</p>
+            <button className="py-0.5 px-2 border text-xs rounded-full">{docInfo?.experience} yrs</button>
           </div>
           <div>
-            <p className='flex items-center gap-1 text-sm font-medium text-gray-900 mt-3'>
+            <p className="flex items-center gap-1 text-sm font-medium text-gray-900 mt-3">
               About <img src={assets.info_icon} alt="" />
             </p>
-            <p className='text-sm text-gray-500 max-w-[700px] mt-1'>{docInfo?.description}</p>
+            <p className="text-sm text-gray-500 max-w-[700px] mt-1">{docInfo?.description}</p>
           </div>
-          <div className="flex items-center gap-1">
-  {Array.from({ length: 5 }, (_, i) => (
-    <span key={i}>
-      {i < docInfo?.rating ? '⭐' : '☆'}
-    </span>
-  ))}
-</div>
-
+          <div className="flex items-center gap-1 mt-2">
+            {Array.from({ length: 5 }, (_, i) => (
+              <span key={i}>{i < docInfo?.rating ? '⭐' : '☆'}</span>
+            ))}
+          </div>
         </div>
-
-        
       </div>
 
-      {/* Date Selection */}
-      <div className='sm:ml-72 sm:pl-4 mt-6 font-medium text-gray-700'>
+      {/* Calendar Date Selection */}
+      <div className="sm:ml-72 sm:pl-4 mt-6 font-medium text-gray-700">
         <p>Select Appointment Date</p>
-        <div className='flex gap-3 items-center w-full overflow-x-scroll mt-4'>
-          {dates.map((date, index) => (
-            <div
-              key={index}
-              onClick={() => setSelectedDate(date)}
-              className={`text-center py-6 min-w-16 rounded-full cursor-pointer ${
-                selectedDate?.getDate() === date.getDate()
-                  ? 'bg-primary text-white'
-                  : 'border border-gray-200'
-              }`}
-            >
-              <p>{daysOfWeek[date.getDay()]}</p>
-              <p>{date.getDate()}</p>
-            </div>
-          ))}
-        </div>
+        <DatePicker
+          value={selectedDate ? moment(selectedDate) : null}
+          onChange={(date) => setSelectedDate(date ? date.toDate() : null)}
+          format="DD-MM-YYYY"
+          className="mt-3"
+        />
 
-        <button
+        {/* Queue info */}
+        {queueInfo && (
+          <div className="mt-4 text-gray-700">
+            <p>Current Queue Count: {queueInfo.count || 0}</p>
+            <p>
+              Estimated End Time:{' '}
+              {queueInfo.end_time ? moment(queueInfo.end_time).format('HH:mm') : 'N/A'}
+            </p>
+          </div>
+        )}
+
+        <Button
+          type="primary"
           onClick={bookAppointment}
-          className='bg-primary text-white text-sm font-light px-14 py-3 rounded-full my-6'
+          className="mt-6"
         >
           Book an appointment
-        </button>
+        </Button>
       </div>
-    </div>
-  )
-}
 
-export default Appointment
+      {/* Related Doctors */}
+    </div>
+  ) : (
+    <p>Loading doctor details...</p>
+  );
+};
+
+export default Appointment;
