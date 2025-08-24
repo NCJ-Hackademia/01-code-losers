@@ -117,8 +117,17 @@ export const GetAppointments = async (req, res, next) => {
     }
 
     const parsedDate = parseDateString(date);
+    
+const startOfDay = new Date(parsedDate);
+startOfDay.setHours(0, 0, 0, 0);
 
-    const queue = await queueModel.findOne({ doctor_id, date: parsedDate });
+const endOfDay = new Date(parsedDate);
+endOfDay.setHours(23, 59, 59, 999);
+
+const queue = await queueModel.findOne({
+  doctor_id,
+  date: { $gte: startOfDay, $lte: endOfDay }
+});
     if (!queue) {
       return res
         .status(200)
@@ -132,8 +141,7 @@ export const GetAppointments = async (req, res, next) => {
       .find(query)
       .populate("user_id", "-password")
       .sort({ estimated_time: 1 });
-
-    // Adjust estimated_time by queue.wt_time
+    
     const adjustedAppointments = appointments.map(app => {
       const adjustedTime = new Date(app.estimated_time.getTime() + (queue.wt_time || 0) * 60000); // add wt_time in minutes
       return {
@@ -141,6 +149,7 @@ export const GetAppointments = async (req, res, next) => {
         estimated_time: adjustedTime
       };
     });
+    
 
     res.status(200).json({
       message: "Appointments fetched successfully",
