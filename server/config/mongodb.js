@@ -8,12 +8,12 @@ const connectDb = async () => {
     await mongoose.connect(process.env.MONGOURL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      autoIndex: true, // ensure indexes (like unique constraints) are created
+      autoIndex: true, 
     });
-    console.log("✅ Database connected successfully");
+    console.log("Database connected successfully");
   } catch (error) {
-    console.error("❌ Database connection failed:", error);
-    process.exit(1); // Exit process if DB connection fails
+    console.error("Database connection failed:", error);
+    process.exit(1); 
   }
 };
 
