@@ -318,7 +318,6 @@ export const AcceptWaitingPatient = async (req, res, next) => {
 //to get patient appointments
 export const GetMyAppointments = async (req, res, next) => {
   try {
-    
     if (!req.user || !req.user._id) {
       return res.status(400).json({ message: "User not authenticated" });
     }
@@ -336,10 +335,21 @@ export const GetMyAppointments = async (req, res, next) => {
       })
       .lean();
 
+    // Adjust estimated_time using wt_time from queue (can be + or - minutes)
+    const adjustedAppointments = appointments.map(app => {
+      const wtTimeMinutes = app.queue_id?.wt_time || 0; // get wt_time from queue
+      const adjustedTime = new Date(new Date(app.estimated_time).getTime() + wtTimeMinutes * 60000);
+
+      return {
+        ...app,
+        estimated_time: adjustedTime
+      };
+    });
+
     return res.status(200).json({
       message: "Appointments fetched successfully",
-      count: appointments.length,
-      appointments,
+      count: adjustedAppointments.length,
+      appointments: adjustedAppointments,
     });
 
   } catch (error) {
