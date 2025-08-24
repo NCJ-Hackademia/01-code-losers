@@ -62,6 +62,7 @@ const AiRecommend = () => {
         });
 
         const [disease, predictedSpecialist] = response.data;
+        console.log(response.data)
         setRecommendation({ disease, specialist: predictedSpecialist });
         specialist = predictedSpecialist;
       }
@@ -79,7 +80,7 @@ const AiRecommend = () => {
     try {
       const query = {};
 
-      if (specialist && specialist !== "general") {
+      if (specialist) {
         query.specialization = specialist.toLowerCase();
       }
 
@@ -87,10 +88,10 @@ const AiRecommend = () => {
       if (pincodeMatch) {
         query.pincode = Number(pincodeMatch[0]);
       } else if (location) {
-        query.city = location; // optional, backend must support city filtering
+        query.city = location; 
       }
 
-      // Only call backend if we have at least one filter
+      
       if (Object.keys(query).length === 0) {
         setDoctors([]);
         return;
@@ -101,6 +102,8 @@ const AiRecommend = () => {
       });
 
       setDoctors(response.data.data);
+      
+      console.log(response.data.data)
     } catch (error) {
       toast.error(error?.response?.data?.message || error.message);
     }
@@ -155,31 +158,44 @@ const AiRecommend = () => {
         </div>
       )} */}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-        {doctors.map((item, index) => (
-          <div
-            onClick={() => navigate(`/appointments/${item._id}`)}
-            key={index}
-            className="border border-blue-200 rounded-xl overflow-hidden cursor-pointer hover:translate-y-[-10px] transition-all duration-500 justify-center items-center"
-          >
-            <img className="bg-blue-50 w-full h-48 object-cover" src={item.user.img} alt={item.user.name} />
-            <div className="p-4">
-              <div className={`flex items-center gap-2 text-sm text-center ${item.user.isActive ? 'text-green-500' : 'text-gray-500'}`}>
-                <p className={`w-2 h-2 ${item.user.isActive ? 'bg-green-500' : 'bg-gray-500'} rounded-full`}></p>
-                <p>{item.user.isActive ? 'Available' : "Not Available"}</p>
-              </div>
-              <p className="text-gray-900 text-lg font-medium">{item.user.name}</p>
-              <p className="text-gray-600 text-sm">{item.specilization}</p>
-              <div className="flex items-center justify-between mt-2 text-sm text-gray-700">
-                <span className="flex items-center gap-1">
-                  <Star className="w-4 h-4 text-yellow-500" /> {item.rating || "N/A"}
-                </span>
-                <span>{item.experience} yrs exp</span>
-              </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {doctors.map((item, index) => (
+                <div
+                  key={index}
+                  className="border border-blue-200 rounded-xl overflow-hidden cursor-pointer hover:-translate-y-2 transition-all duration-500"
+                >
+                  <img
+                    className="bg-blue-50 w-full h-48 object-cover"
+                    src={item.user.img}
+                    alt={item.user.name}
+                  />
+                  <div className="p-4">
+                    <div
+                      className={`flex items-center gap-2 text-sm ${
+                        item.user.isActive ? 'text-green-500' : 'text-gray-500'
+                      }`}
+                    >
+                      <p
+                        className={`w-2 h-2 rounded-full ${
+                          item.user.isActive ? 'bg-green-500' : 'bg-gray-500'
+                        }`}
+                      ></p>
+                      <p>{item.user.isActive ? 'Available' : 'Not Available'}</p>
+                    </div>
+                    <p className="text-gray-900 text-lg font-medium">{item.user.name}</p>
+                    <p className="text-gray-600 text-sm">{item.specilization}</p>
+                    <div className="flex items-center justify-between mt-2 text-sm text-gray-700">
+                      <span className="flex items-center gap-1">
+                        <Star className="w-4 h-4 text-yellow-500" />
+                        {item.rating || 'N/A'}
+                      </span>
+                      <span>{item.experience || 0} yrs exp</span>
+                    </div>
+                 
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
-        ))}
-      </div>
     </div>
   );
 };

@@ -1,22 +1,23 @@
 import doctorModel from "../models/doctorsmodel.js";
+import queueModel from "../models/queuemodel.js";
 import userModel from "../models/userModel.js";
+import { parseDateString } from "../utils/parsedate.js";
 import { uploadFiles } from "../utils/uploadFile.js";
-import bcrypt from 'bcrypt'
+import bcrypt from "bcrypt";
 
 export const AddDoctor = async (req, res, next) => {
-  console.log("hii")
+  console.log("hii");
   try {
-    const id=req.user._id;
+    const id = req.user._id;
     const {
-      email, 
+      email,
       password,
       name,
       description,
       phoneNumber,
       role,
       isActive,
-      
-     
+
       specilization,
       pincode,
       rating,
@@ -31,7 +32,6 @@ export const AddDoctor = async (req, res, next) => {
       !phoneNumber ||
       !role ||
       isActive === undefined ||
-      
       !specilization ||
       !pincode ||
       !rating ||
@@ -41,7 +41,6 @@ export const AddDoctor = async (req, res, next) => {
     ) {
       return next(new Error("All the details are needed"));
     }
-    
 
     const pincodeNumber = parseInt(pincode, 10);
     const ratingNumber = parseFloat(rating);
@@ -56,11 +55,11 @@ export const AddDoctor = async (req, res, next) => {
     ) {
       return next(new Error("Numeric fields must be valid numbers"));
     }
-        const hashpassword = await bcrypt.hash(password, 10);
+    const hashpassword = await bcrypt.hash(password, 10);
 
     const user = await userModel.create({
       email,
-      password:hashpassword,
+      password: hashpassword,
       name,
       phoneNumber,
       role,
@@ -68,16 +67,20 @@ export const AddDoctor = async (req, res, next) => {
     });
 
     if (req.files && req.files[0]?.path) {
-      const imageData = await uploadFiles(req.files[0].path, "image", "doctors");
+      const imageData = await uploadFiles(
+        req.files[0].path,
+        "image",
+        "doctors"
+      );
       user.img = imageData.secure_url;
       await user.save();
     }
 
     const doctor = await doctorModel.create({
-      hospital_id:id,
-      hospital_id:id,
+      hospital_id: id,
+      hospital_id: id,
       user_id: user._id,
-      specilization:specilization.toLowerCase(),
+      specilization: specilization.toLowerCase(),
       pincode: pincodeNumber,
       rating: ratingNumber,
       experience: experienceNumber,
@@ -122,7 +125,11 @@ export const UpdateDoctor = async (req, res, next) => {
     if (role) user.role = role;
 
     if (req.files && req.files[0]?.path) {
-      const imageData = await uploadFiles(req.files[0].path, "image", "doctors");
+      const imageData = await uploadFiles(
+        req.files[0].path,
+        "image",
+        "doctors"
+      );
       user.img = imageData.secure_url;
     }
 
@@ -178,17 +185,19 @@ export const getDoctors = async (req, res) => {
 
     const doctorFilters = {};
     if (specialization) {
-      doctorFilters.specilization = { $regex: `^${specialization.toLowerCase()}$` }; 
+      doctorFilters.specilization = {
+        $regex: `^${specialization.toLowerCase()}$`,
+      };
     }
     if (pincode) doctorFilters.pincode = Number(pincode);
 
     const pipeline = [
       {
-        $match: doctorFilters, 
+        $match: doctorFilters,
       },
       {
         $lookup: {
-          from: "users", 
+          from: "users",
           localField: "user_id",
           foreignField: "_id",
           as: "user",
@@ -211,5 +220,55 @@ export const getDoctors = async (req, res) => {
   } catch (error) {
     console.error("Error fetching doctors:", error);
     return res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+export const getQueuedetails = async (req, res, next) => {
+  try {
+    const { date, doctor_id } = req.query;
+    if (!date || !doctor_id) {
+      return res
+        .status(400)
+        .json({ message: "Date and doctor_id are required" });
+    }
+
+    const parsedDate = parseDateString(date);
+    const queue = await queueModel.findOne({ doctor_id, date: parsedDate });
+    if (!queue) {
+      return res
+        .status(200)
+        .json({ message: "No queue found for this doctor on the given date"} );
+    }
+
+    res.json(queue);
+
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+export const getDoctorById = async (req, res, next) => {
+  try {
+    const { id } = req.body; 
+
+    if (!id ) {
+      return res.status(400).json({ success: false, message: "Invalid doctor ID" });
+    }
+
+    const user = await doctorModel.findById(id).populate("user_id")
+    if (!user) {
+      return res.status(404).json({ success: false, message: "No doctor found" });
+    }
+
+    const doctor = await doctorModel.findOne({ user_id: id });
+
+    return res.status(200).json({
+      success: true,
+      user,   
+      doctor, 
+    });
+  } catch (error) {
+    next(error);
   }
 };
