@@ -7,7 +7,7 @@ const queUserSchema = new mongoose.Schema({
   type: { type: String, enum: ["original", "waiting", "reject"], default: "original" }
 });
 
-// Add a compound index for unique user_id + queue_id combination
+// Compound unique index to prevent duplicate user_id + queue_id combinations
 queUserSchema.index({ user_id: 1, queue_id: 1 }, { unique: true });
 
 const queUserModel = mongoose.model("queuser", queUserSchema);

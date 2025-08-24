@@ -111,11 +111,9 @@ export const GetAppointments = async (req, res, next) => {
   try {
     const { date, type } = req.query;
     const doctor_id = req.user.doctor._id;
-    console.log(date,doctor_id)
+
     if (!date || !doctor_id) {
-      return res
-        .status(400)
-        .json({ message: "Date and doctor_id are required" });
+      return res.status(400).json({ message: "Date and doctor_id are required" });
     }
 
     const parsedDate = parseDateString(date);
@@ -128,25 +126,33 @@ export const GetAppointments = async (req, res, next) => {
     }
 
     let query = { queue_id: queue._id };
-    if (type) {
-      query.type = type;
-    }
+    if (type) query.type = type;
 
     const appointments = await queUserModel
       .find(query)
-      .populate("user_id","-password")
+      .populate("user_id", "-password")
       .sort({ estimated_time: 1 });
+
+    // Adjust estimated_time by queue.wt_time
+    const adjustedAppointments = appointments.map(app => {
+      const adjustedTime = new Date(app.estimated_time.getTime() + (queue.wt_time || 0) * 60000); // add wt_time in minutes
+      return {
+        ...app.toObject(),
+        estimated_time: adjustedTime
+      };
+    });
 
     res.status(200).json({
       message: "Appointments fetched successfully",
-      count: appointments.length,
-      appointments,
+      count: adjustedAppointments.length,
+      appointments: adjustedAppointments,
     });
   } catch (err) {
     console.error("Error in GetAppointments:", err);
     next(err);
   }
 };
+
 
 export const RejectAppointment = async (req, res, next) => {
   try {
@@ -173,7 +179,6 @@ export const RejectAppointment = async (req, res, next) => {
     next(err);
   }
 };
-
 
 
 export const TreatedByDoctor = async (req, res, next) => {
@@ -308,3 +313,4 @@ export const AcceptWaitingPatient = async (req, res, next) => {
     next(error);
   }
 };
+
